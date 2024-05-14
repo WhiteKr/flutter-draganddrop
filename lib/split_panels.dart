@@ -26,7 +26,7 @@ class _SplitPanelsState extends State<SplitPanels> {
   void onDragStart(PanelLocation start) {
     final data = switch (start.$2) {
       Panel.lower => lower[start.$1],
-      Panel.upper => lower[start.$1],
+      Panel.upper => upper[start.$1],
     };
     setState(() {
       dragStart = start;
