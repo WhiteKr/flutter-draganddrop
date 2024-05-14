@@ -1,3 +1,4 @@
+import 'package:draganddrop/my_draggable_widget.dart';
 import 'package:draganddrop/types.dart';
 import 'package:flutter/material.dart';
 
@@ -55,6 +56,7 @@ class _SplitPanelsState extends State<SplitPanels> {
               top: 0,
               child: ItemPanel(
                 crossAxisCount: widget.columns,
+                dragStart: dragStart?.$2 == Panel.upper ? dragStart : null,
                 items: upper,
                 onDragStart: onDragStart,
                 panel: Panel.upper,
@@ -75,6 +77,7 @@ class _SplitPanelsState extends State<SplitPanels> {
               bottom: 0,
               child: ItemPanel(
                 crossAxisCount: widget.columns,
+                dragStart: dragStart?.$2 == Panel.lower ? dragStart : null,
                 items: lower,
                 onDragStart: onDragStart,
                 panel: Panel.lower,
@@ -92,6 +95,7 @@ class ItemPanel extends StatelessWidget {
   const ItemPanel({
     super.key,
     required this.crossAxisCount,
+    required this.dragStart,
     required this.items,
     required this.onDragStart,
     required this.panel,
@@ -99,6 +103,7 @@ class ItemPanel extends StatelessWidget {
   });
 
   final int crossAxisCount;
+  final PanelLocation? dragStart;
   final List<String> items;
   final double spacing;
 
@@ -107,6 +112,11 @@ class ItemPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    PanelLocation? dragStartCopy;
+    if (dragStart != null) {
+      dragStartCopy = dragStart!.copyWith();
+    }
+
     return GridView.count(
       crossAxisCount: crossAxisCount,
       padding: const EdgeInsets.all(4),
@@ -114,28 +124,47 @@ class ItemPanel extends StatelessWidget {
       crossAxisSpacing: spacing,
       children: items.asMap().entries.map(
         (MapEntry<int, String> entry) {
+          Color textColor =
+              entry.key == dragStartCopy?.$1 ? Colors.grey : Colors.white;
+
           Widget child = Center(
             child: Text(
               entry.value,
               textAlign: TextAlign.center,
-              style: const TextStyle(
+              style: TextStyle(
                 fontSize: 36,
-                color: Colors.white,
+                color: textColor,
               ),
             ),
           );
-          child = Container(
-            height: 200,
-            decoration: const BoxDecoration(
-              color: Colors.grey,
-              borderRadius: BorderRadius.all(Radius.circular(8)),
-            ),
-            child: child,
-          );
+
+          if (entry.key == dragStartCopy?.$1) {
+            child = Container(
+              height: 200,
+              decoration: BoxDecoration(
+                color: Colors.grey.shade100,
+                borderRadius: const BorderRadius.all(Radius.circular(8)),
+              ),
+              child: child,
+            );
+          } else {
+            child = Container(
+              height: 200,
+              decoration: const BoxDecoration(
+                color: Colors.grey,
+                borderRadius: BorderRadius.all(Radius.circular(8)),
+              ),
+              child: child,
+            );
+          }
 
           return Draggable(
             feedback: child,
-            child: child,
+            child: MyDraggableWidget(
+              data: entry.value,
+              onDragStart: () => onDragStart((entry.key, panel)),
+              child: child,
+            ),
           );
         },
       ).toList(),
