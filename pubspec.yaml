@@ -1,14 +1,16 @@
 name: draganddrop
 description: "A new Flutter project."
-publish_to: 'none'
+publish_to: "none"
 version: 0.1.0
 
 environment:
-  sdk: '>=3.3.4 <4.0.0'
+  sdk: ">=3.3.4 <4.0.0"
 
 dependencies:
+  dotted_border: ^2.1.0
   flutter:
     sdk: flutter
+  super_drag_and_drop: ^0.8.12
 
 dev_dependencies:
   flutter_test:
